@@ -12,7 +12,6 @@
     "types": [
       "@adobe/cc-ext-uxp-types",
       "@types/node",
-      "@adobe/premierepro"
     ],
     "outDir": "../build-html",
     "noImplicitAny": null,

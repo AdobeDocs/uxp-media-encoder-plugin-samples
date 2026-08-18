@@ -15,7 +15,6 @@
 import eslint from "@eslint/js";
 import { defineConfig, globalIgnores } from "eslint/config";
 import typescript from "typescript-eslint";
-import premierepro from "@adobe/eslint-plugin-premierepro";
 
 export default defineConfig(
   globalIgnores([
@@ -24,7 +23,6 @@ export default defineConfig(
   ]),
   eslint.configs.recommended,
   typescript.configs.recommended,
-  premierepro.configs.recommendedTypeChecked,
   {
     languageOptions: {
       parserOptions: {
