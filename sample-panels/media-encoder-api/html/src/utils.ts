@@ -12,18 +12,60 @@
  * written permission of Adobe.
  **************************************************************************/
 
-export const log = (msg: string, color?: string) => {
-  const console = document.querySelector("#plugin-body");
-  console.innerHTML += color
-    ? `<span style='color:${color}'>${msg}</span><br />`
-    : `${msg}<br />`;
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const uxp = require("uxp") as typeof import("uxp");
 
-  console.scrollTop = console.scrollHeight;
+export const log = (msg: string, color?: string) => {
+  const consoleOutput = document.querySelector("#plugin-body");
+  if (consoleOutput) {
+    consoleOutput.innerHTML += color
+      ? `<span style='color:${color}'>${msg}</span><br />`
+      : `${msg}<br />`;
+
+    consoleOutput.scrollTop = consoleOutput.scrollHeight;
+  }
 };
 
-export const clearLog = () =>
-  (document.querySelector("#plugin-body").innerHTML = "");
+export const clearLog = () => {
+  const body = document.querySelector("#plugin-body");
+  if (body) body.innerHTML = "";
+};
 
-export const registerClick = (id: string, cb: (this: Element, event: Event) => void) => {
+export const registerClick = (
+  id: string,
+  cb: (this: Element, event: Event) => void,
+) => {
   document.querySelector(`#${id}`)?.addEventListener("click", cb);
+};
+
+export const getFileForOpening = async (title: string, types: string[]) => {
+  log(`Please select a ${title} for export`);
+  // @ts-expect-error - uxp.storage.localFileSystem is not typed correctly
+  const fileEntry = await uxp.storage.localFileSystem.getFileForOpening({
+    types,
+  });
+  if (fileEntry?.isFile && fileEntry.nativePath) {
+    return fileEntry.nativePath as string;
+  } else {
+    log(`Selection of ${title} failed. Please try again`);
+    return false;
+  }
+};
+
+export const getFileForSaving = async (
+  title: string,
+  name: string,
+  types: string[],
+) => {
+  log(`Please select a ${title} for export`);
+  // @ts-expect-error - uxp.storage.localFileSystem is not typed correctly
+  const fileEntry = await uxp.storage.localFileSystem.getFileForSaving(name, {
+    types,
+  });
+  if (fileEntry?.isFile && fileEntry.nativePath) {
+    return fileEntry.nativePath as string;
+  } else {
+    log(`Selection of ${title} failed. Please try again`);
+    return false;
+  }
 };
