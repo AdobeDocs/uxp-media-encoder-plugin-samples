@@ -17,58 +17,27 @@ const app = require("mediaencoder") as any;
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const uxp = require("uxp") as typeof import("uxp");
 
-import { log } from "./utils";
+import { getFileForOpening, getFileForSaving, log } from "./utils";
 
 /**
- * Export current active sequence as MEPG2 file
+ * Queue and Export a media file immediately
  */
 export async function renderFile() {
-  // let user select preset file
+  // Select a preset file
+  let presetFile = await getFileForOpening("preset file", ["epr"]);
+  if (!presetFile) return false;
 
-  let presetFile: string;
-  log("Please select a preset file for export");
-  // @ts-expect-error - uxp.storage.localFileSystem is not typed correctly
-  const presetFileEntry = await uxp.storage.localFileSystem.getFileForOpening({
-    types: ["epr"],
-  });
-  if (presetFileEntry?.isFile && presetFileEntry.nativePath) {
-    presetFile = presetFileEntry.nativePath;
-  } else {
-    log("Selection of preset file failed. Please try again");
-    return false;
-  }
+  // Select a source media file
+  let mediaFile = await getFileForOpening("media file", ["mov"]);
+  if (!mediaFile) return false;
 
-  // let user select media file
-  let mediaFile: string;
-  log("Please select a media file for export");
-  // @ts-expect-error - uxp.storage.localFileSystem is not typed correctly
-  const mediaFileEntry = await uxp.storage.localFileSystem.getFileForOpening({
-    types: ["mov"],
-  });
-  if (mediaFileEntry?.isFile && mediaFileEntry.nativePath) {
-    mediaFile = mediaFileEntry.nativePath;
-  } else {
-    log("Selection of preset file failed. Please try again");
-    return false;
-  }
-
-  log("Please select folder for export");
-  // let user choose dir for export output mpg file into
-  let outFile: string;
-  // @ts-expect-error - uxp.storage.localFileSystem is not typed correctly
-  const outFileEntry = await uxp.storage.localFileSystem.getFileForSaving(
-    "output.mov",
-    {
-      tyes: ["mov"],
-    },
-  );
-  if (outFileEntry?.isFile && outFileEntry.nativePath) {
-    outFile = outFileEntry.nativePath;
-  } else {
-    log("Selection of output file failed. Please try again");
-    return false;
-  }
+  // Select an output file for rendering to
+  let outFile = await getFileForSaving("output file", "output.mov", ["mov"]);
+  if (!outFile) return false;
 
   const res = await app.RenderQueue.renderFile(mediaFile, presetFile, outFile);
-  console.log(res);
+  log("File Queud Successfully. Render Started Immediately");
+  log(JSON.stringify(res));
+
+  return true;
 }
