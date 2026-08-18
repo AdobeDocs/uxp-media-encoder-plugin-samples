@@ -20,6 +20,29 @@ const uxp = require("uxp") as typeof import("uxp");
 import { getFileForOpening, getFileForSaving, log } from "./utils";
 
 /**
+ * Queue a media file for render
+ */
+export async function enqueueFile() {
+  // Select a preset file
+  let presetFile = await getFileForOpening("preset file", ["epr"]);
+  if (!presetFile) return false;
+
+  // Select a source media file
+  let mediaFile = await getFileForOpening("media file", ["mov"]);
+  if (!mediaFile) return false;
+
+  // Select an output file for rendering to
+  let outFile = await getFileForSaving("output file", "output.mov", ["mov"]);
+  if (!outFile) return false;
+
+  const res = await app.RenderQueue.enqueueFile(mediaFile, presetFile, outFile);
+  log("File Queued Successfully.");
+  log(JSON.stringify(res));
+
+  return true;
+}
+
+/**
  * Queue and Export a media file immediately
  */
 export async function renderFile() {
@@ -36,7 +59,7 @@ export async function renderFile() {
   if (!outFile) return false;
 
   const res = await app.RenderQueue.renderFile(mediaFile, presetFile, outFile);
-  log("File Queud Successfully. Render Started Immediately");
+  log("File Queued Successfully. Render Started Immediately");
   log(JSON.stringify(res));
 
   return true;
