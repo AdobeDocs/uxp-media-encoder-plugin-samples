@@ -1,0 +1,269 @@
+/*************************************************************************
+ * ADOBE CONFIDENTIAL
+ * ___________________
+ *
+ * Copyright 2024 Adobe
+ * All Rights Reserved.
+ *
+ * NOTICE: Adobe permits you to use, modify, and distribute this file in
+ * accordance with the terms of the Adobe license agreement accompanying
+ * it. If you have received this file from a source other than Adobe,
+ * then your use, modification, or distribution of it requires the prior
+ * written permission of Adobe.
+ **************************************************************************/
+
+import type {
+  premierepro,
+  Application,
+  AudioClipTrackItem,
+  ProjectClosedEvent,
+  ProjectEvent,
+  VideoClipTrackItem,
+} from "@adobe/premierepro";
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const ppro = require("premierepro") as premierepro;
+
+import { log } from "./utils";
+import { getActiveProject, getActiveSequence } from "./project";
+import {
+  addProjectItemsOptions,
+  clearProjectItemOptions,
+  refreshProjectItemOptions,
+} from "./sourceMonitor";
+
+type SequenceEvent = {
+  currentTarget: Application;
+  id: string;
+  name: string;
+  target: Application;
+}
+
+/**
+ * callback function for sequence close event
+ * console sequence name closed and update active sequence name in case of no active seq
+ */
+async function sequenceClosed(event: SequenceEvent) {
+  log(`Sequence Closed: ${event.name}`);
+  // check for case that no more active sequence exist
+  const project = await getActiveProject();
+  const sequence = await getActiveSequence(project);
+  if (!sequence) {
+    document.getElementById("active-sequence-name").innerText =
+      "No Active Sequence";
+  }
+}
+
+/**
+ * callback function for project open event
+ * console project name opened
+ */
+async function onProjectOpened(event: ProjectEvent) {
+  log(`Project Opened: ${event.name}`);
+}
+
+/**
+ * callback function for project close event
+ * console project name closed
+ */
+async function projectClosed(event: ProjectClosedEvent) {
+  log(`Project Closed: ${event.name}`);
+  clearProjectItemOptions();
+}
+
+/**
+ * callback function for sequence activated event
+ * add sequence close event listener and update active seq name
+ */
+async function onSequenceActivated(event: SequenceEvent) {
+  // add close event listener for the current active sequence
+  const project = await getActiveProject();
+  const seq = await getActiveSequence(project);
+  ppro.EventManager.addEventListener(
+    seq,
+    ppro.Constants.SequenceEvent.CLOSED,
+    sequenceClosed,
+    false
+  );
+  // update active sequence name
+  document.getElementById("active-sequence-name").innerText = event.name;
+}
+
+/**
+ * callback function for project activated event
+ * add project close event listener and update active project name
+ */
+async function onProjectActivated(event: ProjectEvent) {
+  // refresh current projectItem options
+  await refreshProjectItemOptions();
+  ppro.EventManager.addGlobalEventListener(
+    ppro.Constants.ProjectEvent.CLOSED,
+    projectClosed
+  );
+  // update active project name
+  document.getElementById("active-project-name").innerText = event.name;
+}
+
+/**
+ * callback function for project dirty event
+ * Update projectItem options when user remove/add new projectItem
+ */
+async function onProjectDirty(/* event: ProjectEvent */) {
+  await refreshProjectItemOptions();
+}
+
+/**
+ * Callback function for sequence trackItem selection change event
+ * Log selected trackItem's name in console
+ */
+async function onSequenceSelectionChange(event: SequenceEvent) {
+  console.log(`Selection for ${event.name} changed`);
+  const project = await getActiveProject();
+  const sequence = await getActiveSequence(project);
+  const selection = await sequence.getSelection();
+  const trackItems = await selection.getTrackItems();
+  trackItems.forEach(async (item: VideoClipTrackItem | AudioClipTrackItem) => {
+    const name = await item.getName();
+    console.log(`selection for trackItem named ${name} changed`);
+  });
+}
+
+type RenderCompleteEvent = {
+  readonly outputFiles: string[];
+}
+
+/**
+ * Callback function for encoder complete event
+ * Log encoder complete in console when AME job complete
+ */
+async function onEncoderComplete(event: RenderCompleteEvent) {
+  console.log(`Encoder process complete: ${event.outputFiles.length} files exported`);
+  event.outputFiles.forEach((file: string) => {
+    console.log(`- ${file}`);
+  });
+}
+
+type RenderProgressEvent = {
+  readonly progress: number;
+}
+
+/**
+ * Callback function for encoder cancel event
+ * Log encoder in progress in console when AME job is in progress
+ */
+async function onEncoderProgress(event: RenderProgressEvent) {
+  console.log(`Encoder in progress: ${event.progress * 100}%`);
+}
+
+/**
+ * Add Encoder event listeners
+ */
+export function addEncoderListeners() {
+  const encoder = ppro.EncoderManager.getManager();
+  ppro.EventManager.addEventListener(
+    encoder,
+    ppro.EncoderManager.EVENT_RENDER_PROGRESS,
+    onEncoderProgress
+  );
+  ppro.EventManager.addEventListener(
+    encoder,
+    ppro.EncoderManager.EVENT_RENDER_COMPLETE,
+    onEncoderComplete
+  );
+}
+
+/**
+ * Callback function for effect drop event
+ * Log Effect dropped when new effect is dropped to trackItem
+ */
+export async function onEffectDropped(/* event: OperationCompleteEvent */) {
+  console.log("Effect dropped");
+}
+
+/**
+ * Callback function for effect dragged over completion event
+ * Log effect dragged over when effect is dragged over trackItem
+ */
+async function onEffectDraggedOver(/* event: OperationCompleteEvent */) {
+  console.log("Effect dragged over");
+}
+
+/**
+ * Callback function for snap trackItem event
+ * Log trackItem snapped when trackItem is snapped in timeline
+ */
+async function onSnapTrackItem(/* event: SnapEvent */) {
+  console.log("TrackItem snapped");
+}
+
+/**
+ * Callback function for snap trackItem playhead event
+ * Log playhead snapped when playhead is snapped to trackItem edges
+ */
+async function onSnapTrackItemPlayhead(/* event: SnapEvent */) {
+  console.log("Playhead snapped to trackItem edges");
+}
+/**
+ * Add project and sequence event listeners
+ */
+export async function addProjSeqListeners() {
+  // intialize active project and active sequence name, if any
+  const project = await getActiveProject();
+  if (project) {
+    document.getElementById("active-project-name").innerText = project.name;
+  }
+  const sequence = await getActiveSequence(project);
+  if (sequence) {
+    document.getElementById("active-sequence-name").innerText = sequence.name;
+  }
+
+  // load projectItems for source monitor
+  await addProjectItemsOptions();
+
+  // add project event listener
+  ppro.EventManager.addGlobalEventListener(
+    ppro.Constants.ProjectEvent.OPENED,
+    onProjectOpened
+  );
+  ppro.EventManager.addGlobalEventListener(
+    ppro.Constants.ProjectEvent.ACTIVATED,
+    onProjectActivated,
+    true // in capture phase
+  );
+  ppro.EventManager.addGlobalEventListener(
+    ppro.Constants.ProjectEvent.DIRTY,
+    onProjectDirty,
+    true
+  );
+
+  // add sequence event listeners
+  ppro.EventManager.addGlobalEventListener(
+    ppro.Constants.SequenceEvent.ACTIVATED,
+    onSequenceActivated
+  );
+  ppro.EventManager.addGlobalEventListener(
+    ppro.Constants.SequenceEvent.SELECTION_CHANGED,
+    onSequenceSelectionChange
+  );
+
+  // add operation complete event listeners
+  ppro.EventManager.addGlobalEventListener(
+    ppro.Constants.OperationCompleteEvent.EFFECT_DROP_COMPLETE,
+    onEffectDropped
+  );
+
+  ppro.EventManager.addGlobalEventListener(
+    ppro.Constants.OperationCompleteEvent.EFFECT_DRAG_OVER,
+    onEffectDraggedOver
+  );
+
+  // add snap event listeners
+  ppro.EventManager.addGlobalEventListener(
+    ppro.Constants.SnapEvent.TRACKITEM,
+    onSnapTrackItem
+  );
+
+  ppro.EventManager.addGlobalEventListener(
+    ppro.Constants.SnapEvent.PLAYHEAD_TRACKITEM,
+    onSnapTrackItemPlayhead
+  );
+}
