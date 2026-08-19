@@ -15,7 +15,7 @@
 //module imports
 import { log, clearLog, registerClick } from "./src/utils";
 
-import { enqueueFile, renderFile } from "./src/renderQueue";
+import { enqueueFile, renderFile, stitchFiles } from "./src/renderQueue";
 import { addProjSeqListeners } from "./src/eventManager";
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -116,6 +116,7 @@ entrypoints.setup({
 window.addEventListener("load", async () => {
   registerClick("render-file", renderFile);
   registerClick("enqueue-file", enqueueFile);
+  registerClick("stitch-files", stitchFiles);
 
   document
     .querySelector(".clear-btn")!

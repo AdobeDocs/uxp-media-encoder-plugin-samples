@@ -69,3 +69,34 @@ export async function renderFile() {
 
   return true;
 }
+
+/**
+ * Stitch multiple media source files into one render job
+ */
+export async function stitchFiles() {
+  const pluginDir: string = (
+    await uxp.storage.localFileSystem.getEntryWithUrl("plugin:/")
+  ).nativePath;
+
+  // Path to EPR Preset File
+  let presetFile = path.join(pluginDir, "assets", "HD 1080i 25.epr");
+
+  // Path to multiple media files
+  let mediaFileA = path.join(pluginDir, "assets", "Sample Media Clip 6.mp4");
+  let mediaFileB = path.join(pluginDir, "assets", "Sample Media Clip 16.mp4");
+
+  // Have the user select an output file for rendering to
+  let outFile = await getFileForSaving("output file", "stitched.mpg", ["mpg"]);
+  if (!outFile) return false;
+
+  // Queue and render the file
+  const res = await app.RenderQueue.stitchFiles(
+    [mediaFileA, mediaFileB],
+    presetFile,
+    outFile,
+  );
+  log("Stitched Files Queued Successfully");
+  log(JSON.stringify(res));
+
+  return true;
+}
