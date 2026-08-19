@@ -16,6 +16,8 @@
 import { log, clearLog, registerClick } from "./src/utils";
 
 import { enqueueFile, renderFile, stitchFiles } from "./src/renderQueue";
+import { customInOutPoints } from "./src/renderOptions";
+
 import { addProjSeqListeners } from "./src/eventManager";
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -117,12 +119,13 @@ window.addEventListener("load", async () => {
   registerClick("render-file", renderFile);
   registerClick("enqueue-file", enqueueFile);
   registerClick("stitch-files", stitchFiles);
+  registerClick("custom-in-out-points", customInOutPoints);
 
   document
     .querySelector(".clear-btn")!
     .addEventListener("click", () => clearLog());
-
   // add encoder event listeners. Details in eventManager.ts
+
   await addProjSeqListeners();
 });
 
