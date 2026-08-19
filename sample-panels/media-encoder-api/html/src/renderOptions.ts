@@ -34,7 +34,7 @@ export async function customInOutPoints() {
   let mediaFile = path.join(pluginDir, "assets", "example.prproj");
 
   // Have the user select an output file for rendering to
-  let outFile = await getFileForSaving("output file", "output.mpg", ["mpg"]);
+  let outFile = await getFileForSaving("output file", "in-out.mpg", ["mpg"]);
   if (!outFile) return false;
 
   // Create RenderOptions With Custom In/Out Points
@@ -52,6 +52,43 @@ export async function customInOutPoints() {
   );
   log(
     "File Queued Successfully with Custom In / Out Points. Render Started Immediately",
+  );
+  log(JSON.stringify(res));
+
+  return true;
+}
+
+/**
+ * Queue and Render File with Custom Rotation
+ */
+export async function customRotation() {
+  const pluginDir: string = (
+    await uxp.storage.localFileSystem.getEntryWithUrl("plugin:/")
+  ).nativePath;
+
+  // Path to EPR Preset File
+  let presetFile = path.join(pluginDir, "assets", "HD 1080i 25.epr");
+
+  // Path to any source media file. A Premiere project for this example
+  let mediaFile = path.join(pluginDir, "assets", "example.prproj");
+
+  // Have the user select an output file for rendering to
+  let outFile = await getFileForSaving("output file", "rotated.mpg", ["mpg"]);
+  if (!outFile) return false;
+
+  // Create RenderOptions With Custom In/Out Points
+  const renderOptions = app.RenderOptions();
+  renderOptions.setRotation(45); // Rotate 45 degrees
+
+  // Queue and render the file
+  const res = await app.RenderQueue.renderFile(
+    mediaFile,
+    presetFile,
+    outFile,
+    renderOptions,
+  );
+  log(
+    "File Queued Successfully with Custom Rotation. Render Started Immediately",
   );
   log(JSON.stringify(res));
 

@@ -16,7 +16,7 @@
 import { log, clearLog, registerClick } from "./src/utils";
 
 import { enqueueFile, renderFile, stitchFiles } from "./src/renderQueue";
-import { customInOutPoints } from "./src/renderOptions";
+import { customInOutPoints, customRotation } from "./src/renderOptions";
 
 import { addProjSeqListeners } from "./src/eventManager";
 
@@ -116,10 +116,14 @@ entrypoints.setup({
 });
 
 window.addEventListener("load", async () => {
+  // RenderQueue
   registerClick("render-file", renderFile);
   registerClick("enqueue-file", enqueueFile);
   registerClick("stitch-files", stitchFiles);
+
+  // RenderOptions
   registerClick("custom-in-out-points", customInOutPoints);
+  registerClick("custom-rotation", customRotation);
 
   document
     .querySelector(".clear-btn")!
