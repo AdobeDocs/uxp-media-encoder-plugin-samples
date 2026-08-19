@@ -40,7 +40,6 @@ export const registerClick = (
 
 export const getFileForOpening = async (title: string, types: string[]) => {
   log(`Please select a ${title} for export`);
-  // @ts-expect-error - uxp.storage.localFileSystem is not typed correctly
   const fileEntry = await uxp.storage.localFileSystem.getFileForOpening({
     types,
   });
@@ -58,7 +57,6 @@ export const getFileForSaving = async (
   types: string[],
 ) => {
   log(`Please select a ${title} for export`);
-  // @ts-expect-error - uxp.storage.localFileSystem is not typed correctly
   const fileEntry = await uxp.storage.localFileSystem.getFileForSaving(name, {
     types,
   });

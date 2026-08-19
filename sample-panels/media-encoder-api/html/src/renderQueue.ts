@@ -23,18 +23,20 @@ import { getFileForOpening, getFileForSaving, log } from "./utils";
  * Queue a media file for render
  */
 export async function enqueueFile() {
-  // Select a preset file
-  let presetFile = await getFileForOpening("preset file", ["epr"]);
-  if (!presetFile) return false;
+  const pluginDir: string = (
+    await uxp.storage.localFileSystem.getEntryWithUrl("plugin:/")
+  ).nativePath;
+  // Path to EPR Preset File
+  let presetFile = path.join(pluginDir, "assets", "HD 1080i 25.epr");
 
-  // Select a source media file
-  let mediaFile = await getFileForOpening("media file", ["mov"]);
-  if (!mediaFile) return false;
+  // Path to any source media file. A Premiere project for this example
+  let mediaFile = path.join(pluginDir, "assets", "example.prproj");
 
-  // Select an output file for rendering to
-  let outFile = await getFileForSaving("output file", "output.mov", ["mov"]);
+  // Have the user select an output file for rendering to
+  let outFile = await getFileForSaving("output file", "output.mpg", ["mpg"]);
   if (!outFile) return false;
 
+  // Queue the file
   const res = await app.RenderQueue.enqueueFile(mediaFile, presetFile, outFile);
   log("File Queued Successfully.");
   log(JSON.stringify(res));
@@ -46,18 +48,21 @@ export async function enqueueFile() {
  * Queue and Export a media file immediately
  */
 export async function renderFile() {
-  // Select a preset file
-  let presetFile = await getFileForOpening("preset file", ["epr"]);
-  if (!presetFile) return false;
+  const pluginDir: string = (
+    await uxp.storage.localFileSystem.getEntryWithUrl("plugin:/")
+  ).nativePath;
 
-  // Select a source media file
-  let mediaFile = await getFileForOpening("media file", ["mov"]);
-  if (!mediaFile) return false;
+  // Path to EPR Preset File
+  let presetFile = path.join(pluginDir, "assets", "HD 1080i 25.epr");
 
-  // Select an output file for rendering to
-  let outFile = await getFileForSaving("output file", "output.mov", ["mov"]);
+  // Path to any source media file. A Premiere project for this example
+  let mediaFile = path.join(pluginDir, "assets", "example.prproj");
+
+  // Have the user select an output file for rendering to
+  let outFile = await getFileForSaving("output file", "output.mpg", ["mpg"]);
   if (!outFile) return false;
 
+  // Queue and render the file
   const res = await app.RenderQueue.renderFile(mediaFile, presetFile, outFile);
   log("File Queued Successfully. Render Started Immediately");
   log(JSON.stringify(res));

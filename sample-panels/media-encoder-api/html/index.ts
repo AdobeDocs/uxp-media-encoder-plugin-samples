@@ -27,7 +27,6 @@ const { entrypoints } = uxp;
 // for each of the panels or commands defined in the manifest.json file.
 entrypoints.setup({
   panels: {
-    // @ts-expect-error - entrypoints.setup is, unfortunately, incorrectly typed
     // for panels and commands.
     // See: https://github.com/adobe/cc-ext-uxp-types/issues/5
     samplepanel: {
@@ -72,7 +71,7 @@ entrypoints.setup({
           enabled: true,
           checked: false,
         },
-        // Shorthand for a separator menu item.
+        //@ts-ignore Shorthand for a separator menu item.
         "-",
         {
           id: "toggle-checked",
@@ -91,7 +90,9 @@ entrypoints.setup({
           case "toggle-checked":
             // "this" refers to the (UxpPanelInfo) panel itself, allowing
             // access the panel's menu items and other properties.
+            //@ts-ignore
             this.menuItems.getItem(id).checked =
+              //@ts-ignore
               !this.menuItems.getItem(id).checked;
             break;
 
