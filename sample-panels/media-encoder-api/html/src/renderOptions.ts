@@ -28,13 +28,13 @@ export async function customInOutPoints() {
   ).nativePath;
 
   // Path to EPR Preset File
-  let presetFile = path.join(pluginDir, "assets", "HD 1080i 25.epr");
+  const presetFile = path.join(pluginDir, "assets", "HD 1080i 25.epr");
 
   // Path to any source media file. A Premiere project for this example
-  let mediaFile = path.join(pluginDir, "assets", "example.prproj");
+  const mediaFile = path.join(pluginDir, "assets", "example.prproj");
 
   // Have the user select an output file for rendering to
-  let outFile = await getFileForSaving("output file", "in-out.mpg", ["mpg"]);
+  const outFile = await getFileForSaving("output file", "in-out.mpg", ["mpg"]);
   if (!outFile) return false;
 
   // Create RenderOptions With Custom In/Out Points
@@ -67,13 +67,13 @@ export async function customRotation() {
   ).nativePath;
 
   // Path to EPR Preset File
-  let presetFile = path.join(pluginDir, "assets", "HD 1080i 25.epr");
+  const presetFile = path.join(pluginDir, "assets", "HD 1080i 25.epr");
 
   // Path to any source media file. A Premiere project for this example
-  let mediaFile = path.join(pluginDir, "assets", "example.prproj");
+  const mediaFile = path.join(pluginDir, "assets", "example.prproj");
 
   // Have the user select an output file for rendering to
-  let outFile = await getFileForSaving("output file", "rotated.mpg", ["mpg"]);
+  const outFile = await getFileForSaving("output file", "rotated.mpg", ["mpg"]);
   if (!outFile) return false;
 
   // Create RenderOptions With Custom In/Out Points

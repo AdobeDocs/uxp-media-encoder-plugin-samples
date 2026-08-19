@@ -15,7 +15,12 @@
 //module imports
 import { log, clearLog, registerClick } from "./src/utils";
 
-import { enqueueFile, renderFile, stitchFiles } from "./src/renderQueue";
+import {
+  enqueueFile,
+  enqueueImagesAsSequence,
+  renderFile,
+  stitchFiles,
+} from "./src/renderQueue";
 import { customInOutPoints, customRotation } from "./src/renderOptions";
 
 import { addProjSeqListeners } from "./src/eventManager";
@@ -120,6 +125,7 @@ window.addEventListener("load", async () => {
   registerClick("render-file", renderFile);
   registerClick("enqueue-file", enqueueFile);
   registerClick("stitch-files", stitchFiles);
+  registerClick("enqueue-images-as-sequence", enqueueImagesAsSequence);
 
   // RenderOptions
   registerClick("custom-in-out-points", customInOutPoints);

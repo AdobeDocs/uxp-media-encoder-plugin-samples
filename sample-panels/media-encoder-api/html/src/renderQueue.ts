@@ -27,13 +27,13 @@ export async function enqueueFile() {
     await uxp.storage.localFileSystem.getEntryWithUrl("plugin:/")
   ).nativePath;
   // Path to EPR Preset File
-  let presetFile = path.join(pluginDir, "assets", "HD 1080i 25.epr");
+  const presetFile = path.join(pluginDir, "assets", "HD 1080i 25.epr");
 
   // Path to any source media file. A Premiere project for this example
-  let mediaFile = path.join(pluginDir, "assets", "example.prproj");
+  const mediaFile = path.join(pluginDir, "assets", "example.prproj");
 
   // Have the user select an output file for rendering to
-  let outFile = await getFileForSaving("output file", "output.mpg", ["mpg"]);
+  const outFile = await getFileForSaving("output file", "output.mpg", ["mpg"]);
   if (!outFile) return false;
 
   // Queue the file
@@ -53,13 +53,13 @@ export async function renderFile() {
   ).nativePath;
 
   // Path to EPR Preset File
-  let presetFile = path.join(pluginDir, "assets", "HD 1080i 25.epr");
+  const presetFile = path.join(pluginDir, "assets", "HD 1080i 25.epr");
 
   // Path to any source media file. A Premiere project for this example
-  let mediaFile = path.join(pluginDir, "assets", "example.prproj");
+  const mediaFile = path.join(pluginDir, "assets", "example.prproj");
 
   // Have the user select an output file for rendering to
-  let outFile = await getFileForSaving("output file", "output.mpg", ["mpg"]);
+  const outFile = await getFileForSaving("output file", "output.mpg", ["mpg"]);
   if (!outFile) return false;
 
   // Queue and render the file
@@ -79,19 +79,57 @@ export async function stitchFiles() {
   ).nativePath;
 
   // Path to EPR Preset File
-  let presetFile = path.join(pluginDir, "assets", "HD 1080i 25.epr");
+  const presetFile = path.join(pluginDir, "assets", "HD 1080i 25.epr");
 
   // Path to multiple media files
-  let mediaFileA = path.join(pluginDir, "assets", "Sample Media Clip 6.mp4");
-  let mediaFileB = path.join(pluginDir, "assets", "Sample Media Clip 16.mp4");
+  const mediaFileA = path.join(pluginDir, "assets", "Sample Media Clip 6.mp4");
+  const mediaFileB = path.join(pluginDir, "assets", "Sample Media Clip 16.mp4");
 
   // Have the user select an output file for rendering to
-  let outFile = await getFileForSaving("output file", "stitched.mpg", ["mpg"]);
+  const outFile = await getFileForSaving("output file", "stitched.mpg", [
+    "mpg",
+  ]);
   if (!outFile) return false;
 
   // Queue and render the file
   const res = await app.RenderQueue.stitchFiles(
     [mediaFileA, mediaFileB],
+    presetFile,
+    outFile,
+  );
+  log("Stitched Files Queued Successfully");
+  log(JSON.stringify(res));
+
+  return true;
+}
+
+/**
+ * Stitch multiple media source files into one render job
+ */
+export async function enqueueImagesAsSequence() {
+  const pluginDir: string = (
+    await uxp.storage.localFileSystem.getEntryWithUrl("plugin:/")
+  ).nativePath;
+
+  // Path to EPR Preset File
+  const presetFile = path.join(pluginDir, "assets", "HD 1080i 25.epr");
+
+  // Path to image sequence folder
+  const imageSequenceFolder = path.join(pluginDir, "assets", "image-sequence");
+
+  // Path to first image in sequence (file extension used to filter files in folder)
+  const firstImageInSequence = path.join(imageSequenceFolder, "media_1039.jpg");
+
+  // Have the user select an output file for rendering to
+  const outFile = await getFileForSaving("output file", "image-sequence.mpg", [
+    "mpg",
+  ]);
+  if (!outFile) return false;
+
+  // Queue and render the file
+  const res = await app.RenderQueue.enqueueImagesAsSequence(
+    imageSequenceFolder,
+    firstImageInSequence,
     presetFile,
     outFile,
   );
