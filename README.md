@@ -90,7 +90,7 @@ The loading flow is the same for every sample:
 The panel appears in Media Encoder under **Window → UXP Plugins**.
 
 <p align="center">
-  <img src="payloads/UXP-sample-panel-loaded.png" alt="Sample panel loaded in Media Encoder" width="720">
+  <img src="payloads/UXP-sample-panel-loaded.png" alt="The Media Encoder UXP sample panel" width="420">
 </p>
 
 ---
